@@ -80,6 +80,11 @@ func (n *networkRouter) postNetworkCreate(ctx context.Context, w http.ResponseWr
 			fmt.Sprintf("%s is a pre-defined network and cannot be created", create.Name))
 	}
 
+	if create.CheckDuplicate {
+		n.netNames.lock(create.Name)
+		defer n.netNames.unlock(create.Name)
+	}
+
 	nw, err := n.backend.GetNetworkByName(create.Name)
 	if _, ok := err.(libnetwork.ErrNoSuchNetwork); err != nil && !ok {
 		return err
